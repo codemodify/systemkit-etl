@@ -1,4 +1,4 @@
-package extlod
+package loaders
 
 import (
 	"encoding/csv"
@@ -8,7 +8,7 @@ import (
 )
 
 // CSVLoaderLineHandler -
-type CSVLoaderLineHandler func(key string, value interface{}) (bool, []string)
+type CSVLoaderLineHandler func(etlContracts.DATAPayload) (bool, []string)
 
 // csvLoader -
 type csvLoader struct {
@@ -18,8 +18,8 @@ type csvLoader struct {
 
 // NewCSVLoader -
 func NewCSVLoader(isFirstLineHeader bool) etlContracts.Loader {
-	return NewCSVLoaderWithDelegate(isFirstLineHeader, func(key string, value interface{}) (bool, []string) {
-		if v, ok := value.([]string); ok {
+	return NewCSVLoaderWithDelegate(isFirstLineHeader, func(line etlContracts.DATAPayload) (bool, []string) {
+		if v, ok := line[""].([]string); ok {
 			return true, v
 		}
 
@@ -40,8 +40,8 @@ func (thisRef csvLoader) Load(data etlContracts.DATA) ([]byte, error) {
 	if thisRef.lineHandler != nil {
 		result := [][]string{}
 
-		for key, value := range data {
-			isValid, line := thisRef.lineHandler(key, value)
+		for _, value := range data {
+			isValid, line := thisRef.lineHandler(value)
 			if isValid {
 				result = append(result, line)
 			}

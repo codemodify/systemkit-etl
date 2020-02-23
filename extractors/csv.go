@@ -1,20 +1,16 @@
-package extlod
+package extractors
 
 import (
 	"encoding/csv"
-	"fmt"
 	"strings"
 
 	etlContracts "github.com/codemodify/systemkit-etl/contracts"
 )
 
 // CSVExtractorLineHandler -
-type CSVExtractorLineHandler func(line []string, lineIndex int, isFirstLineHeader bool) (bool, string, []string)
+type CSVExtractorLineHandler func(line []string, lineIndex int, isFirstLineHeader bool) (bool, etlContracts.DATAPayload)
 
-// csvExtractor - it is stored as
-//		0 -> []string{}
-//		1 -> []string{}
-//		2 -> []string{}
+// csvExtractor -
 type csvExtractor struct {
 	isFirstLineHeader bool
 	lineHandler       CSVExtractorLineHandler
@@ -22,11 +18,13 @@ type csvExtractor struct {
 
 // NewCSVExtractor -
 func NewCSVExtractor(isFirstLineHeader bool) etlContracts.Extractor {
-	return NewCSVExtractorWithDelegate(isFirstLineHeader, func(line []string, lineIndex int, isFirstLineHeader bool) (bool, string, []string) {
+	return NewCSVExtractorWithDelegate(isFirstLineHeader, func(line []string, lineIndex int, isFirstLineHeader bool) (bool, etlContracts.DATAPayload) {
 		if len(line) > 0 {
-			return true, fmt.Sprint(lineIndex), line
+			return true, etlContracts.DATAPayload{
+				"": line,
+			}
 		}
-		return false, "", []string{}
+		return false, etlContracts.DATAPayload{}
 	})
 }
 
@@ -49,9 +47,9 @@ func (thisRef csvExtractor) Extract(data []byte) (etlContracts.DATA, error) {
 		result := etlContracts.DATA{}
 
 		for lineIndex, line := range lines {
-			isValid, key, obj := thisRef.lineHandler(line, lineIndex, thisRef.isFirstLineHeader)
+			isValid, obj := thisRef.lineHandler(line, lineIndex, thisRef.isFirstLineHeader)
 			if isValid {
-				result[key] = obj
+				result = append(result, obj)
 			}
 		}
 

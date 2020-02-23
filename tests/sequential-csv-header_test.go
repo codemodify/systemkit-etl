@@ -6,20 +6,21 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/codemodify/systemkit-etl/extlod"
+	"github.com/codemodify/systemkit-etl/extractors"
+	"github.com/codemodify/systemkit-etl/loaders"
 	"github.com/codemodify/systemkit-etl/pipeline"
 )
 
-func Test_Sequential01(t *testing.T) {
-	rawData, err := ioutil.ReadFile("./data-files/sample.csv")
+func Test_Sequential_CSV_Header_Missing(t *testing.T) {
+	rawData, err := ioutil.ReadFile("./data-files/sample-header.csv")
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	p := pipeline.NewSequentialPipeline([]pipeline.Unit{
 		pipeline.Unit{
-			Extractor: extlod.NewCSVExtractor(false),
-			Loader:    extlod.NewCSVLoader(false),
+			Extractor: extractors.NewCSVExtractor(true),
+			Loader:    loaders.NewCSVLoader(true),
 		},
 	})
 
@@ -34,5 +35,5 @@ func Test_Sequential01(t *testing.T) {
 	}
 
 	fmt.Println(string(outputRawData))
-	ioutil.WriteFile("./data-files/sample-ouput.csv", outputRawData, 0644)
+	ioutil.WriteFile("./data-files/sample-header-ouput.csv", outputRawData, 0644)
 }

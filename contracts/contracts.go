@@ -1,10 +1,10 @@
 package contracts
 
-// DATA -
-type DATA map[string]interface{}
+// DATAPayload -
+type DATAPayload map[string]interface{}
 
-// // DATAContainer -
-// type DATAContainer map[uint64]DATA
+// DATA -
+type DATA []DATAPayload
 
 // Extractor -
 type Extractor interface {
